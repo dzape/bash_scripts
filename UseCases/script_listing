@@ -1,0 +1,177 @@
+#!/bin/more
+ ======================= 
+ SCRIPT NAME checkargs.sh 
+ ======================= 
+#!/bin/bash
+# 
+
+if [ "$#" != "3" ]; then
+	echo " USAGE : checkargs.sh [parm1] [parm2] [parm3]"
+	exit 300
+fi
+
+echo " I live ! I got what i needed !"
+ ======================= 
+ SCRIPT NAME checkargs_2.sh 
+ ======================= 
+#!/bin/bash
+
+: ${3?"USSAGE : $1 ARgument $2 ARGUMENT $3 ARGUMENT"}
+
+echo " I got all three ! "
+ ======================= 
+ SCRIPT NAME docfile.sh 
+ ======================= 
+#!/bin/bash
+
+DOCFILE="script_listing"
+
+echo "#!/bin/more" > "$DOCFILE"
+
+ls *.sh > tmplisting.txt
+
+while IFS= read -r FILENAME; do
+	if [ -f "$FILENAME" ]; then
+		echo " ======================= " >> "$DOCFILE"
+		echo " SCRIPT NAME $FILENAME " >> "$DOCFILE"
+		echo " ======================= " >> "$DOCFILE"
+		echo ""
+		echo "`cat $FILENAME`" >> "$DOCFILE"
+		echo ""
+	fi
+done < tmplisting.txt
+
+chmod 755 "$DOCFILE"
+
+rm tmplisting.txt
+ ======================= 
+ SCRIPT NAME overriding.sh 
+ ======================= 
+#!/bin/bash
+# overriding / trap system error and execute a custom func
+
+# global var
+TMPFILE="tmpfile.txt"
+TMPFILE2="tmpfile2.txt"
+
+trap 'funcMyExit' EXIT
+
+# func declaration - start
+funcMyExit () {
+	echo " Exit Intercepted.. "
+	echo " cleaning up the tmp files .. "
+	rm -rf tmpfile*.txt
+	exit 255
+}
+
+# func decclaration - stop 
+
+# scr - start
+echo " Write something to tmp file for later use ... " > $TMPFILE
+echo " Write something to tmp2 file for later use ... " > $TMPFILE2
+
+echo " Trying to copy the indicated file before procesing ... " 
+cp -rf $1 newfile.txt 2>/dev/null
+
+if [ "$?" -eq "0" ]; then
+	echo " Everything worked ok .. "
+else
+	echo " I Guess it did not work "
+	exit 1
+fi
+ ======================= 
+ SCRIPT NAME simpleinfobox.sh 
+ ======================= 
+#!/bin/bash
+# simple info box with dialog and ncurses 
+
+# global var / def val
+
+INFOBOX=${INFOBOX=dialog}
+TITLE="Default"
+MESSAGE="Someting to say"
+XCORD=10
+YCORD=20
+
+# func dec - start
+
+# display info box and message
+funcDisplayInfoBox () {
+	$INFOBOX --title "$1" --infobox "$2" "$3" "$4"
+	sleep "$5"
+}
+
+# func dec - stp[
+
+# scr - start 
+
+if [ "$1" == "shutdown" ]; then
+	funcDisplayInfoBox " WARNING ! " " We are SHUTTING DOWN the system ..." "11" "21" "5"
+
+	echo " Shutting Down ! "
+
+	funcDisplayInfoBox " Info.. " " You are not doing anything fun ... " "11" "21" "5"
+
+	echo " Not doing anything ..."
+
+fi	
+ ======================= 
+ SCRIPT NAME simpleinputbox.sh 
+ ======================= 
+#!/bin/bash
+# simple input dialog box
+
+# global var
+INPUTBOX=${INPUTBOX=dialog}
+TITL="Default"
+MESSAGE="Some messsage"
+XCORD=10
+YCORD=20
+
+# fun declaration - start 
+
+# display the input box
+funcDisplayInputBox () {
+	$INPUTBOX --title "$1" --inputbox "$2" "$3" "$4" 2>tmpfile.txt
+}
+
+# fun declaration - stop
+
+# scr - start 
+
+funcDisplayInputBox " Display File Name " "Which File in the curent directory do you want to display ? " "10" "20"
+
+if [ "`cat tmpfile.txt`" != "" ]; then
+	cat "`cat tmpfile.txt`" 
+else
+	echo " Nothing to do "
+fi
+
+# scr - stop
+ ======================= 
+ SCRIPT NAME simplemessagebox.sh 
+ ======================= 
+#!/bin/bash
+# message box with an ok button
+
+# global var /default var
+
+MSGBOX=${MSGBOX=dialog}
+TITLE="Default"
+MESSAGE="Some MEssage"
+XCORD=10
+YCORD=20
+
+# func declaration - start
+funcDisplayMsgBox () {
+	$MSGBOX --title "$1" --msgbox "$2" "$3" "$4"
+}
+
+# func declaration - stop
+
+# scr - start
+if [ "$1" == "shutdown" ]; then
+	funcDisplayMsgBox "WARNING!" "Please press OK when you are ready to shut down the system" "10" "20"
+	
+	echo " Not doing anything, back to regular scripting..."
+fi
